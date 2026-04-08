@@ -1,5 +1,5 @@
 import type { Project, Task, Commit } from './project'
-
+declare module '*.css'
 declare global {
   interface Window {
     api: {

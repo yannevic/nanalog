@@ -134,27 +134,52 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
   const [where, setWhere] = useState(project.where)
   const [notes, setNotes] = useState(project.notes)
   const [briefing, setBriefing] = useState(project.briefing)
-
-  useEffect(() => {
-    setBriefing(project.briefing)
-  }, [project.briefing])
   const [copied, setCopied] = useState(false)
   const [editingBriefing, setEditingBriefing] = useState(!project.briefing)
-  useEffect(() => {
-    if (!briefing) return
-    const timer = setTimeout(async () => {
-      console.log('[briefing] salvando:', briefing.slice(0, 50))
-      const result = await editProject(project.id, { briefing })
-      console.log('[briefing] resultado:', result)
-    }, 600)
-    return () => clearTimeout(timer)
-  }, [briefing, project.id])
   const [newTask, setNewTask] = useState('')
   const [commitMsg, setCommitMsg] = useState('')
   const [commitType, setCommitType] = useState<Commit['type']>('✨')
   const [status, setStatus] = useState<Project['status']>(project.status)
   const [progress, setProgress] = useState(project.progress)
   const [version, setVersion] = useState(project.version)
+  const [name, setName] = useState(project.name)
+  const [editingName, setEditingName] = useState(false)
+
+  useEffect(() => {
+    setBriefing(project.briefing)
+  }, [project.briefing])
+
+  useEffect(() => {
+    setWhere(project.where)
+  }, [project.where])
+
+  useEffect(() => {
+    setNotes(project.notes)
+  }, [project.notes])
+
+  useEffect(() => {
+    setStatus(project.status)
+  }, [project.status])
+
+  useEffect(() => {
+    setProgress(project.progress)
+  }, [project.progress])
+
+  useEffect(() => {
+    setVersion(project.version)
+  }, [project.version])
+
+  useEffect(() => {
+    setName(project.name)
+  }, [project.name])
+
+  useEffect(() => {
+    if (!briefing) return
+    const timer = setTimeout(async () => {
+      await editProject(project.id, { briefing })
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [briefing, project.id])
 
   async function handleStatusChange(val: Project['status']) {
     setStatus(val)
@@ -186,6 +211,11 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
 
   async function handleVersionSave() {
     await editProject(project.id, { version })
+  }
+
+  async function handleNameSave() {
+    setEditingName(false)
+    await editProject(project.id, { name })
   }
 
   async function handleAddTask() {
@@ -249,15 +279,52 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
           marginBottom: '12px',
         }}
       >
-        <div
-          style={{
-            fontFamily: 'Playfair Display, serif',
-            fontSize: '1.3rem',
-            color: 'var(--text)',
-            marginBottom: '4px',
-          }}
-        >
-          {project.name}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          {editingName ? (
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={handleNameSave}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleNameSave()
+              }}
+              autoFocus
+              style={{
+                fontFamily: 'Playfair Display, serif',
+                fontSize: '1.3rem',
+                color: 'var(--text)',
+                border: 'none',
+                borderBottom: '2px solid var(--rose)',
+                outline: 'none',
+                background: 'transparent',
+                width: '100%',
+              }}
+            />
+          ) : (
+            <span
+              style={{
+                fontFamily: 'Playfair Display, serif',
+                fontSize: '1.3rem',
+                color: 'var(--text)',
+              }}
+            >
+              {name}
+            </span>
+          )}
+          <button
+            onClick={() => setEditingName((e) => !e)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-muted)',
+              fontSize: '0.85rem',
+              padding: '0',
+              flexShrink: 0,
+            }}
+          >
+            ✏️
+          </button>
         </div>
         <div
           style={{
