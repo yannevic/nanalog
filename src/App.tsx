@@ -1,36 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Home from './pages/Home'
+import DetailView from './components/DetailView'
+import { useProjects } from './hooks/useProjects'
 
 export default function App() {
   const [openProjectId, setOpenProjectId] = useState<number | null>(null)
+  const { projects, editProject } = useProjects()
 
-  function handleOpen(id: number) {
-    setOpenProjectId(id)
-  }
+  const openProject = projects.find(p => p.id === openProjectId) ?? null
 
-  if (openProjectId !== null) {
+  useEffect(() => {
+    if (openProjectId !== null) {
+      editProject(openProjectId, { lastSeen: 'agora' })
+    }
+  }, [openProjectId])
+
+  if (openProject !== null && openProject !== undefined) {
     return (
-      <div style={{ padding: '2rem', color: 'var(--text)' }}>
-        <button
-          onClick={() => setOpenProjectId(null)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--rose-deep)',
-            cursor: 'pointer',
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: '0.9rem',
-            marginBottom: '1rem',
-          }}
-        >
-          ← voltar
-        </button>
-        <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
-          DetailView em breve... 🌸
-        </p>
+      <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+        <DetailView
+          project={openProject}
+          onBack={() => setOpenProjectId(null)}
+        />
       </div>
     )
   }
 
-  return <Home onOpen={handleOpen} />
+  return <Home onOpen={id => setOpenProjectId(id)} />
 }

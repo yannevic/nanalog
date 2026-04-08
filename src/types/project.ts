@@ -26,4 +26,5 @@ export interface Project {
   tasks: Task[]
   commits: Commit[]
   notes: string
+  briefing: string
 }

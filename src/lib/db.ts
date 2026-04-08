@@ -14,7 +14,8 @@ db.exec(`
     progress INTEGER NOT NULL DEFAULT 0,
     lastSeen TEXT NOT NULL,
     where_stopped TEXT NOT NULL DEFAULT '',
-    notes TEXT NOT NULL DEFAULT ''
+    notes TEXT NOT NULL DEFAULT '',
+    briefing TEXT NOT NULL DEFAULT ''
   );
 
   CREATE TABLE IF NOT EXISTS tasks (
@@ -51,6 +52,7 @@ function getProjectFull(id: number): Project | null {
     lastSeen: row.lastSeen as string,
     where: row.where_stopped as string,
     notes: row.notes as string,
+    briefing: row.briefing as string,
     tasks,
     commits,
   }
@@ -71,7 +73,7 @@ export function addProject(data: Pick<Project, 'name' | 'version' | 'status' | '
   return getProjectFull(result.lastInsertRowid as number)!
 }
 
-export function updateProject(id: number, data: Partial<Pick<Project, 'name' | 'version' | 'status' | 'progress' | 'lastSeen' | 'where' | 'notes'>>): Project | null {
+export function updateProject(id: number, data: Partial<Pick<Project, 'name' | 'version' | 'status' | 'progress' | 'lastSeen' | 'where' | 'notes' | 'briefing'>>): Project | null {
   if (data.name !== undefined) db.prepare('UPDATE projects SET name = ? WHERE id = ?').run(data.name, id)
   if (data.version !== undefined) db.prepare('UPDATE projects SET version = ? WHERE id = ?').run(data.version, id)
   if (data.status !== undefined) db.prepare('UPDATE projects SET status = ? WHERE id = ?').run(data.status, id)
@@ -79,6 +81,7 @@ export function updateProject(id: number, data: Partial<Pick<Project, 'name' | '
   if (data.lastSeen !== undefined) db.prepare('UPDATE projects SET lastSeen = ? WHERE id = ?').run(data.lastSeen, id)
   if (data.where !== undefined) db.prepare('UPDATE projects SET where_stopped = ? WHERE id = ?').run(data.where, id)
   if (data.notes !== undefined) db.prepare('UPDATE projects SET notes = ? WHERE id = ?').run(data.notes, id)
+  if (data.briefing !== undefined) db.prepare('UPDATE projects SET briefing = ? WHERE id = ?').run(data.briefing, id)
 
   return getProjectFull(id)
 }
