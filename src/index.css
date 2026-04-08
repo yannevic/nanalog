@@ -1,13 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
 :root {
-  --color-bg: #0f0f0f;
-  --color-surface: #1a1a1a;
-  --color-border: #2a2a2a;
-  --color-text: #e0e0e0;
-  --color-text-muted: #888888;
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
+  --rose: #f2a7bc;
+  --rose-deep: #e07a9a;
+  --rose-light: #fce8ef;
+  --rose-pale: #fff0f5;
+  --green: #a8c5a0;
+  --green-light: #dff0db;
+  --cream: #fff8f9;
+  --white: #ffffff;
+  --text: #4a3040;
+  --text-soft: #8a6070;
+  --text-muted: #b89aaa;
+  --border: rgba(224, 122, 154, 0.18);
+  --shadow: rgba(226, 130, 160, 0.15);
 }
 
 * {
@@ -17,26 +24,46 @@
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--cream);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar customizada */
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Scrollbar customizada rosa */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: var(--rose-pale);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--rose);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+  background: var(--rose-deep);
+}
+
+/* Animação de entrada */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.3s ease forwards;
 }
