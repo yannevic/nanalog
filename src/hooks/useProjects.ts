@@ -48,6 +48,11 @@ export function useProjects() {
     await load()
   }
 
+  async function deleteCommit(id: number) {
+    await window.api.deleteCommit(id)
+    await load()
+  }
+
   return {
     projects,
     createProject,
@@ -57,5 +62,6 @@ export function useProjects() {
     toggleTask,
     removeTask,
     createCommit,
+    deleteCommit,
   }
 }

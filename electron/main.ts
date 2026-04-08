@@ -9,6 +9,7 @@ import {
   updateTask,
   deleteTask,
   addCommit,
+  deleteCommit,
 } from '../src/lib/db'
 import type { Project, Commit } from '../src/types/project'
 
@@ -34,29 +35,34 @@ function createWindow() {
 app.whenReady().then(() => {
   ipcMain.handle('list-projects', () => listProjects())
 
-  ipcMain.handle('add-project', (_e, data: Pick<Project, 'name' | 'version' | 'status' | 'where'>) =>
-    addProject(data),
+  ipcMain.handle(
+    'add-project',
+    (_e, data: Pick<Project, 'name' | 'version' | 'status' | 'where'>) => addProject(data)
   )
 
   ipcMain.handle('update-project', (_e, { id, data }: { id: number; data: Partial<Project> }) =>
-    updateProject(id, data),
+    updateProject(id, data)
   )
 
   ipcMain.handle('delete-project', (_e, id: number) => deleteProject(id))
 
   ipcMain.handle('add-task', (_e, { projectId, text }: { projectId: number; text: string }) =>
-    addTask(projectId, text),
+    addTask(projectId, text)
   )
 
   ipcMain.handle('update-task', (_e, { id, done }: { id: number; done: boolean }) =>
-    updateTask(id, done),
+    updateTask(id, done)
   )
 
   ipcMain.handle('delete-task', (_e, id: number) => deleteTask(id))
 
-  ipcMain.handle('add-commit', (_e, { projectId, type, msg }: { projectId: number; type: Commit['type']; msg: string }) =>
-    addCommit(projectId, type, msg),
+  ipcMain.handle(
+    'add-commit',
+    (_e, { projectId, type, msg }: { projectId: number; type: Commit['type']; msg: string }) =>
+      addCommit(projectId, type, msg)
   )
+
+  ipcMain.handle('delete-commit', (_e, id: number) => deleteCommit(id))
 
   createWindow()
 
