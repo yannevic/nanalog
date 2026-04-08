@@ -36,6 +36,12 @@ db.exec(`
   );
 `)
 
+try {
+  db.exec(`ALTER TABLE projects ADD COLUMN briefing TEXT NOT NULL DEFAULT ''`)
+} catch {
+  // coluna já existe, tudo bem
+}
+
 function getProjectFull(id: number): Project | null {
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Record<string, unknown> | undefined
   if (!row) return null
