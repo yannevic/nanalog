@@ -39,8 +39,21 @@ db.exec(`
 try {
   db.exec(`ALTER TABLE projects ADD COLUMN briefing TEXT NOT NULL DEFAULT ''`)
 } catch {
-  // coluna já existe, tudo bem
+  // coluna já existe
 }
+
+try {
+  db.exec(`ALTER TABLE projects ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0`)
+} catch {
+  // coluna já existe
+}
+
+const projectsWithoutOrder = db.prepare(`SELECT id FROM projects ORDER BY id ASC`).all() as {
+  id: number
+}[]
+projectsWithoutOrder.forEach((p, i) => {
+  db.prepare(`UPDATE projects SET sort_order = ? WHERE id = ?`).run(i, p.id)
+})
 
 function getProjectFull(id: number): Project | null {
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as
@@ -71,7 +84,9 @@ function getProjectFull(id: number): Project | null {
 }
 
 export function listProjects(): Project[] {
-  const rows = db.prepare('SELECT id FROM projects ORDER BY id DESC').all() as { id: number }[]
+  const rows = db.prepare('SELECT id FROM projects ORDER BY sort_order ASC').all() as {
+    id: number
+  }[]
   return rows.map((r) => getProjectFull(r.id)).filter(Boolean) as Project[]
 }
 
@@ -124,6 +139,12 @@ export function deleteProject(id: number): void {
 
 export function deleteCommit(id: number): void {
   db.prepare('DELETE FROM commits WHERE id = ?').run(id)
+}
+
+export function reorderProjects(ids: number[]): void {
+  ids.forEach((id, i) => {
+    db.prepare('UPDATE projects SET sort_order = ? WHERE id = ?').run(i, id)
+  })
 }
 
 export function addTask(projectId: number, text: string): Task {

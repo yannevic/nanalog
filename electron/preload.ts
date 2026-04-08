@@ -24,4 +24,6 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('add-commit', { projectId, type, msg }),
 
   deleteCommit: (id: number): Promise<void> => ipcRenderer.invoke('delete-commit', id),
+
+  reorderProjects: (ids: number[]): Promise<void> => ipcRenderer.invoke('reorder-projects', ids),
 })

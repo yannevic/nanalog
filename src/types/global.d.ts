@@ -12,6 +12,7 @@ declare global {
       deleteTask: (id: number) => Promise<void>
       addCommit: (projectId: number, type: Commit['type'], msg: string) => Promise<Commit>
       deleteCommit: (id: number) => Promise<void>
+      reorderProjects: (ids: number[]) => Promise<void>
     }
   }
 }

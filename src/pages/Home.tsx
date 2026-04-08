@@ -4,6 +4,14 @@ import { useProjects } from '../hooks/useProjects'
 import ProjectCard from '../components/ProjectCard'
 import StatsBar from '../components/StatsBar'
 import NewProjectModal from '../components/NewProjectModal'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface Props {
   onOpen: (id: number) => void
@@ -17,10 +25,33 @@ function getHeaderDate(): string {
   return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`
 }
 
+function SortableCard({ project, onOpen }: { project: Project; onOpen: (id: number) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: project.id,
+  })
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        cursor: 'grab',
+      }}
+    >
+      <ProjectCard project={project} onOpen={onOpen} />
+    </div>
+  )
+}
+
 export default function Home({ onOpen }: Props) {
-  const { projects, createProject } = useProjects()
+  const { projects, createProject, reorderProjects } = useProjects()
   const [showModal, setShowModal] = useState(false)
   const [filter, setFilter] = useState<Project['status'] | null>(null)
+
   const filtered = filter ? projects.filter((p) => p.status === filter) : projects
 
   return (
@@ -180,24 +211,37 @@ export default function Home({ onOpen }: Props) {
           />
         </p>
 
-        {/* Grid de cards */}
-        <div style={{ display: 'grid', gap: '12px' }}>
-          {filtered.length === 0 && (
-            <p
-              style={{
-                textAlign: 'center',
-                color: 'var(--text-muted)',
-                fontSize: '0.85rem',
-                padding: '2rem 0',
-              }}
-            >
-              nenhum projeto ainda 🌱
-            </p>
-          )}
-          {filtered.map((project) => (
-            <ProjectCard key={project.id} project={project} onOpen={onOpen} />
-          ))}
-        </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={async ({ active, over }) => {
+            if (!over || active.id === over.id) return
+            const ids = filtered.map((p) => p.id)
+            const oldIndex = ids.indexOf(Number(active.id))
+            const newIndex = ids.indexOf(Number(over.id))
+            const newIds = arrayMove(ids, oldIndex, newIndex)
+            await reorderProjects(newIds)
+          }}
+        >
+          <SortableContext items={filtered.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {filtered.length === 0 && (
+                <p
+                  style={{
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.85rem',
+                    padding: '2rem 0',
+                  }}
+                >
+                  nenhum projeto ainda 🌱
+                </p>
+              )}
+              {filtered.map((project) => (
+                <SortableCard key={project.id} project={project} onOpen={onOpen} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
 
         {/* Botão novo projeto */}
         <button

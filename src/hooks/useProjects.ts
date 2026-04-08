@@ -53,6 +53,11 @@ export function useProjects() {
     await load()
   }
 
+  async function reorderProjects(ids: number[]) {
+    await window.api.reorderProjects(ids)
+    await load()
+  }
+
   return {
     projects,
     createProject,
@@ -63,5 +68,6 @@ export function useProjects() {
     removeTask,
     createCommit,
     deleteCommit,
+    reorderProjects,
   }
 }

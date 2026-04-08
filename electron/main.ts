@@ -10,6 +10,7 @@ import {
   deleteTask,
   addCommit,
   deleteCommit,
+  reorderProjects,
 } from '../src/lib/db'
 import type { Project, Commit } from '../src/types/project'
 
@@ -63,6 +64,8 @@ app.whenReady().then(() => {
   )
 
   ipcMain.handle('delete-commit', (_e, id: number) => deleteCommit(id))
+
+  ipcMain.handle('reorder-projects', (_e, ids: number[]) => reorderProjects(ids))
 
   createWindow()
 
