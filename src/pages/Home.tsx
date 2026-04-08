@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { Project } from '../types/project'
 import { useProjects } from '../hooks/useProjects'
 import ProjectCard from '../components/ProjectCard'
 import StatsBar from '../components/StatsBar'
@@ -19,12 +20,31 @@ function getHeaderDate(): string {
 export default function Home({ onOpen }: Props) {
   const { projects, createProject } = useProjects()
   const [showModal, setShowModal] = useState(false)
+  const [filter, setFilter] = useState<Project['status'] | null>(null)
+  const filtered = filter ? projects.filter((p) => p.status === filter) : projects
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--cream)', position: 'relative', overflow: 'hidden' }}>
-
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--cream)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
       {/* Pétalas SVG de fundo */}
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+          zIndex: 0,
+          overflow: 'hidden',
+        }}
+      >
         {[
           { top: '-20px', left: '5%' },
           { top: '-20px', left: '25%' },
@@ -64,86 +84,118 @@ export default function Home({ onOpen }: Props) {
             width="80"
             height="80"
             viewBox="0 0 200 200"
-            style={{
-              position: 'absolute',
-              opacity: 0.12,
-              top: pos.top,
-              left: pos.left,
-            } as React.CSSProperties}
+            style={
+              {
+                position: 'absolute',
+                opacity: 0.12,
+                top: pos.top,
+                left: pos.left,
+              } as React.CSSProperties
+            }
           >
             <g fill="#a8c5a0">
-              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(0 100 100)"/>
-              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(60 100 100)"/>
-              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(120 100 100)"/>
-              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(180 100 100)"/>
-              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(240 100 100)"/>
-              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(300 100 100)"/>
-              <circle cx="100" cy="100" r="14" fill="#c5dfc1"/>
+              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(0 100 100)" />
+              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(60 100 100)" />
+              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(120 100 100)" />
+              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(180 100 100)" />
+              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(240 100 100)" />
+              <ellipse cx="100" cy="55" rx="16" ry="38" transform="rotate(300 100 100)" />
+              <circle cx="100" cy="100" r="14" fill="#c5dfc1" />
             </g>
           </svg>
         ))}
       </div>
 
       {/* Conteúdo */}
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '860px', margin: '0 auto', padding: '1.5rem 1.2rem 3rem' }}>
-
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: '860px',
+          margin: '0 auto',
+          padding: '1.5rem 1.2rem 3rem',
+        }}
+      >
         {/* Header */}
-        <header style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem',
-          paddingBottom: '1rem',
-          borderBottom: '1px solid var(--border)',
-        }}>
+        <header
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '2rem',
+            paddingBottom: '1rem',
+            borderBottom: '1px solid var(--border)',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '38px', height: '38px',
-              background: 'linear-gradient(135deg, var(--rose-light), var(--rose))',
-              borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '18px',
-            }}>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                background: 'linear-gradient(135deg, var(--rose-light), var(--rose))',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px',
+              }}
+            >
               🌸
             </div>
-            <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', color: 'var(--text)' }}>
+            <div
+              style={{
+                fontFamily: 'Playfair Display, serif',
+                fontSize: '1.3rem',
+                color: 'var(--text)',
+              }}
+            >
               <span style={{ color: 'var(--rose-deep)', fontStyle: 'italic' }}>Nana</span>log
             </div>
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            {getHeaderDate()}
-          </div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{getHeaderDate()}</div>
         </header>
 
-        <StatsBar projects={projects} />
+        <StatsBar projects={projects} filter={filter} onFilter={setFilter} />
 
         {/* Título seção */}
-        <p style={{
-          fontFamily: 'Playfair Display, serif',
-          fontSize: '1.05rem',
-          color: 'var(--text-soft)',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-        }}>
+        <p
+          style={{
+            fontFamily: 'Playfair Display, serif',
+            fontSize: '1.05rem',
+            color: 'var(--text-soft)',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
           meus projetos
-          <span style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, var(--border), transparent)', display: 'inline-block' }} />
+          <span
+            style={{
+              flex: 1,
+              height: '1px',
+              background: 'linear-gradient(90deg, var(--border), transparent)',
+              display: 'inline-block',
+            }}
+          />
         </p>
 
         {/* Grid de cards */}
         <div style={{ display: 'grid', gap: '12px' }}>
-          {projects.length === 0 && (
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', padding: '2rem 0' }}>
+          {filtered.length === 0 && (
+            <p
+              style={{
+                textAlign: 'center',
+                color: 'var(--text-muted)',
+                fontSize: '0.85rem',
+                padding: '2rem 0',
+              }}
+            >
               nenhum projeto ainda 🌱
             </p>
           )}
-          {projects.map(project => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onOpen={onOpen}
-            />
+          {filtered.map((project) => (
+            <ProjectCard key={project.id} project={project} onOpen={onOpen} />
           ))}
         </div>
 
@@ -167,13 +219,13 @@ export default function Home({ onOpen }: Props) {
             gap: '8px',
             transition: 'all 0.2s',
           }}
-          onMouseEnter={e => {
+          onMouseEnter={(e) => {
             const el = e.currentTarget as HTMLButtonElement
             el.style.borderColor = 'var(--rose)'
             el.style.color = 'var(--rose-deep)'
             el.style.background = 'var(--rose-pale)'
           }}
-          onMouseLeave={e => {
+          onMouseLeave={(e) => {
             const el = e.currentTarget as HTMLButtonElement
             el.style.borderColor = 'var(--border)'
             el.style.color = 'var(--text-muted)'

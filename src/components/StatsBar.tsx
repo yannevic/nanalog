@@ -2,41 +2,62 @@ import type { Project } from '../types/project'
 
 interface Props {
   projects: Project[]
+  filter: Project['status'] | null
+  onFilter: (status: Project['status'] | null) => void
 }
 
-export default function StatsBar({ projects }: Props) {
-  const active = projects.filter(p => p.status === 'active').length
-  const paused = projects.filter(p => p.status === 'paused').length
-  const done = projects.filter(p => p.status === 'done').length
+export default function StatsBar({ projects, filter, onFilter }: Props) {
+  const active = projects.filter((p) => p.status === 'active').length
+  const paused = projects.filter((p) => p.status === 'paused').length
+  const done = projects.filter((p) => p.status === 'done').length
+
+  function handleClick(status: Project['status']) {
+    if (filter === status) {
+      onFilter(null)
+    } else {
+      onFilter(status)
+    }
+  }
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '10px',
-      marginBottom: '1.8rem',
-    }}>
-      <div style={statCard}>
-        <div style={{ ...statIcon, background: 'var(--green-light)' }}>🌱</div>
-        <div>
-          <p style={statLabel}>ativos</p>
-          <strong style={statNum}>{active}</strong>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '10px',
+        marginBottom: '1.8rem',
+      }}
+    >
+      {(
+        [
+          {
+            status: 'active',
+            label: 'ativos',
+            icon: '🌱',
+            bg: 'var(--green-light)',
+            count: active,
+          },
+          { status: 'paused', label: 'pausados', icon: '🌙', bg: '#fff7e0', count: paused },
+          { status: 'done', label: 'concluídos', icon: '✨', bg: '#e8f0fe', count: done },
+        ] as { status: Project['status']; label: string; icon: string; bg: string; count: number }[]
+      ).map((item) => (
+        <div
+          key={item.status}
+          onClick={() => handleClick(item.status)}
+          style={{
+            ...statCard,
+            cursor: 'pointer',
+            outline: filter === item.status ? '2px solid var(--rose)' : '2px solid transparent',
+            transition: 'all 0.2s',
+          }}
+        >
+          <div style={{ ...statIcon, background: item.bg }}>{item.icon}</div>
+          <div>
+            <p style={statLabel}>{item.label}</p>
+            <strong style={statNum}>{item.count}</strong>
+          </div>
         </div>
-      </div>
-      <div style={statCard}>
-        <div style={{ ...statIcon, background: '#fff7e0' }}>🌙</div>
-        <div>
-          <p style={statLabel}>pausados</p>
-          <strong style={statNum}>{paused}</strong>
-        </div>
-      </div>
-      <div style={statCard}>
-        <div style={{ ...statIcon, background: '#e8f0fe' }}>✨</div>
-        <div>
-          <p style={statLabel}>concluídos</p>
-          <strong style={statNum}>{done}</strong>
-        </div>
-      </div>
+      ))}
     </div>
   )
 }
