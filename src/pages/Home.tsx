@@ -26,7 +26,7 @@ function getHeaderDate(): string {
 }
 
 function SortableCard({ project, onOpen }: { project: Project; onOpen: (id: number) => void }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({
     id: project.id,
   })
 
@@ -34,15 +34,34 @@ function SortableCard({ project, onOpen }: { project: Project; onOpen: (id: numb
     <div
       ref={setNodeRef}
       {...attributes}
-      {...listeners}
       style={{
         transform: CSS.Transform.toString(transform),
-        transition,
+        transition: 'none',
         opacity: isDragging ? 0.4 : 1,
-        cursor: 'grab',
       }}
     >
-      <ProjectCard project={project} onOpen={onOpen} />
+      <ProjectCard
+        project={project}
+        onOpen={onOpen}
+        dragHandle={
+          <div
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              cursor: 'grab',
+              color: 'var(--text-muted)',
+              fontSize: '1.2rem',
+              padding: '0 4px',
+              lineHeight: 1,
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            ⠿
+          </div>
+        }
+      />
     </div>
   )
 }

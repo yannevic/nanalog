@@ -3,6 +3,7 @@ import type { Project } from '../types/project'
 interface Props {
   project: Project
   onOpen: (id: number) => void
+  dragHandle?: React.ReactNode
 }
 
 function getBarClass(status: Project['status']): React.CSSProperties {
@@ -33,7 +34,7 @@ function getStatusLabel(status: Project['status']): string {
   return '🔴 abandonado'
 }
 
-export default function ProjectCard({ project, onOpen }: Props) {
+export default function ProjectCard({ project, onOpen, dragHandle }: Props) {
   const isDone = project.status === 'done' || project.status === 'abandoned'
 
   return (
@@ -44,7 +45,7 @@ export default function ProjectCard({ project, onOpen }: Props) {
         background: 'var(--white)',
         border: '1px solid var(--border)',
         borderRadius: '22px',
-        padding: '1.1rem 1.25rem',
+        padding: dragHandle ? '1.1rem 1.25rem 1.1rem 2.5rem' : '1.1rem 1.25rem',
         cursor: 'pointer',
         position: 'relative',
         overflow: 'hidden',
@@ -74,6 +75,25 @@ export default function ProjectCard({ project, onOpen }: Props) {
         }}
       />
 
+      {/* Handle de drag */}
+      {dragHandle && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: '2.2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2,
+          }}
+        >
+          {dragHandle}
+        </div>
+      )}
+
       {/* Topo: nome + badge */}
       <div
         style={{
@@ -81,6 +101,7 @@ export default function ProjectCard({ project, onOpen }: Props) {
           alignItems: 'flex-start',
           justifyContent: 'space-between',
           marginBottom: '0.8rem',
+          paddingRight: dragHandle ? '2rem' : 0,
         }}
       >
         <div>
