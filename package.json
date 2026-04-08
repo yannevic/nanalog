@@ -1,5 +1,5 @@
 {
-  "name": "template-desktop",
+  "name": "nanalog",
   "version": "0.1.0",
   "private": true,
   "main": "dist-electron/main.js",
@@ -27,6 +27,7 @@
     "@vitejs/plugin-react": "^4.0.0",
     "electron": "^35.0.0",
     "electron-builder": "^24.0.0",
+    "electron-rebuild": "^3.2.9",
     "esbuild": "^0.28.0",
     "eslint": "^8.0.0",
     "eslint-plugin-react-hooks": "^4.0.0",
@@ -39,8 +40,8 @@
     "vite-plugin-electron-renderer": "^0.14.0"
   },
   "build": {
-    "appId": "com.template.desktop",
-    "productName": "Template Desktop",
+    "appId": "com.yannevic.nanalog",
+    "productName": "Nanalog",
     "directories": {
       "output": "release"
     },
