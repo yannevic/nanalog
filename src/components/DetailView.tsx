@@ -137,6 +137,8 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
   const [copied, setCopied] = useState(false)
   const [editingBriefing, setEditingBriefing] = useState(!project.briefing)
   const [newTask, setNewTask] = useState('')
+  const [importMode, setImportMode] = useState(false)
+  const [importText, setImportText] = useState('')
   const [commitMsg, setCommitMsg] = useState('')
   const [commitType, setCommitType] = useState<Commit['type']>('✨')
   const [status, setStatus] = useState<Project['status']>(project.status)
@@ -225,6 +227,24 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
     setNewTask('')
   }
 
+  async function handleImportTasks() {
+    const lines = importText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0)
+
+    const slots = 10 - project.tasks.length
+    const toAdd = lines.slice(0, slots)
+
+    await toAdd.reduce(async (prev, text) => {
+      await prev
+      await createTask(project.id, text)
+    }, Promise.resolve())
+
+    setImportText('')
+    setImportMode(false)
+  }
+
   async function handleToggleTask(id: number, done: boolean) {
     await toggleTask(id, !done)
     const updatedDone = project.tasks.filter((t) => (t.id === id ? !done : t.done)).length
@@ -246,10 +266,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
   ]
 
   return (
-    <div
-      className="fade-up"
-      style={{ maxWidth: '860px', margin: '0 auto', padding: '1.5rem 1.2rem 3rem' }}
-    >
+    <div style={{ maxWidth: '860px', margin: '0 auto', padding: '1.5rem 1.2rem 3rem' }}>
       <button
         onClick={onBack}
         style={{
@@ -485,7 +502,36 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
       {/* TASKS */}
       {tab === 'tasks' && (
         <div style={panelCard}>
-          <h3 style={panelTitle}>✅ próximos passos</h3>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '0.75rem',
+            }}
+          >
+            <h3 style={{ ...panelTitle, marginBottom: 0 }}>✅ próximos passos</h3>
+            {project.tasks.length < 10 && (
+              <button
+                onClick={() => {
+                  setImportMode((v) => !v)
+                  setImportText('')
+                }}
+                style={{
+                  background: importMode ? 'var(--rose-light)' : 'transparent',
+                  color: 'var(--rose-deep)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  padding: '4px 12px',
+                  fontSize: '0.75rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                  cursor: 'pointer',
+                }}
+              >
+                {importMode ? '✕ cancelar' : '📋 importar em lote'}
+              </button>
+            )}
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {project.tasks.map((t) => (
               <div
@@ -535,6 +581,49 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
               </div>
             ))}
           </div>
+          {importMode && (
+            <div
+              style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}
+            >
+              <textarea
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                placeholder={
+                  'uma tarefa por linha:\nconfigurar banco de dados\ncriair tela de login\nescrever testes'
+                }
+                rows={5}
+                style={{ ...textareaStyle, resize: 'vertical' }}
+                autoFocus
+              />
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0 }}>
+                {Math.max(0, 10 - project.tasks.length)} vaga
+                {10 - project.tasks.length !== 1 ? 's' : ''} disponível
+                {10 - project.tasks.length !== 1 ? 'is' : ''}
+                {importText.split('\n').filter((l) => l.trim()).length > 10 - project.tasks.length
+                  ? ` — só as primeiras ${10 - project.tasks.length} serão importadas`
+                  : ''}
+              </p>
+              <button
+                onClick={handleImportTasks}
+                disabled={!importText.trim()}
+                style={{
+                  background: 'linear-gradient(135deg, var(--rose), var(--rose-deep))',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '7px 16px',
+                  fontSize: '0.8rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontWeight: 500,
+                  cursor: importText.trim() ? 'pointer' : 'not-allowed',
+                  opacity: importText.trim() ? 1 : 0.5,
+                  alignSelf: 'flex-start',
+                }}
+              >
+                importar tarefas
+              </button>
+            </div>
+          )}
           {project.tasks.length < 10 && (
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
               <input
@@ -944,9 +1033,26 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                     if (React.isValidElement(child)) {
                       const el = child as React.ReactElement<{ children?: React.ReactNode }>
                       const text = String(el.props.children ?? '')
-                      return renderFileTree(text)
+                      const isFileTree = text.split('\n').some((line) => line.trim().endsWith('/'))
+                      if (isFileTree) return renderFileTree(text)
                     }
-                    return <pre>{children}</pre>
+                    return (
+                      <pre
+                        style={{
+                          background: 'var(--rose-pale)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '14px',
+                          padding: '1rem 1.2rem',
+                          fontFamily: 'monospace',
+                          fontSize: '0.82rem',
+                          lineHeight: 1.7,
+                          overflowX: 'auto',
+                          color: 'var(--text)',
+                        }}
+                      >
+                        {children}
+                      </pre>
+                    )
                   },
                   table: ({ children }) => (
                     <div style={{ overflowX: 'auto', marginBottom: '0.6rem' }}>
