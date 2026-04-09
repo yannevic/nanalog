@@ -184,20 +184,11 @@ export default function Home({ onOpen }: Props) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                background: 'linear-gradient(135deg, var(--rose-light), var(--rose))',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-              }}
-            >
-              🌸
-            </div>
+            <img
+              src="src/assets/icon.png"
+              alt="Nanalog"
+              style={{ width: '38px', height: '38px', objectFit: 'contain' }}
+            />
             <div
               style={{
                 fontFamily: 'Playfair Display, serif',

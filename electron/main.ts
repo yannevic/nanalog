@@ -19,6 +19,7 @@ import type { Project, Commit } from '../src/types/project'
 
 function createWindow() {
   const win = new BrowserWindow({
+    icon: join(__dirname, '../assets/icon.png'),
     title: 'Nanalog',
     width: 1200,
     height: 800,
@@ -99,6 +100,7 @@ app.whenReady().then(() => {
   ipcMain.handle('reorder-projects', (_e, ids: number[]) => reorderProjects(ids))
 
   createWindow()
+  app.setAppUserModelId('Nanalog')
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
