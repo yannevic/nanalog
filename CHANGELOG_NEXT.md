@@ -1,5 +1,5 @@
-## 🌸 Nanalog v1.0.6
+## 🌸 Nanalog v1.0.7
 
 ### 🔧 Correções
 
-- Listeners do auto-update agora são removidos corretamente ao desmontar o componente
+- Nome do instalador corrigido para Nanalog-Setup-x.x.x.exe (hífens em vez de espaços)
