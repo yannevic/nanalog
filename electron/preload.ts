@@ -42,4 +42,5 @@ contextBridge.exposeInMainWorld('api', {
   winMinimize: (): Promise<void> => ipcRenderer.invoke('win-minimize'),
   winMaximize: (): Promise<void> => ipcRenderer.invoke('win-maximize'),
   winClose: (): Promise<void> => ipcRenderer.invoke('win-close'),
+  getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),
 })

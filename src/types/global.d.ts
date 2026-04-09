@@ -23,6 +23,7 @@ declare global {
       winMinimize: () => Promise<void>
       winMaximize: () => Promise<void>
       winClose: () => Promise<void>
+      getVersion: () => Promise<string>
     }
   }
 }

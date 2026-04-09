@@ -1,7 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
+  const [version, setVersion] = useState('')
+
+  useEffect(() => {
+    window.api.getVersion().then(setVersion)
+  }, [])
 
   function handleMinimize() {
     window.api.winMinimize()
@@ -72,7 +77,7 @@ export default function TitleBar() {
             marginRight: '4px',
           }}
         >
-          v1.0.0
+          v{version}
         </span>
         {/* Minimizar */}
         <button

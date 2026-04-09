@@ -48,6 +48,8 @@ function createWindow() {
     }
   })
   ipcMain.handle('win-close', () => win.close())
+
+  ipcMain.handle('get-version', () => app.getVersion())
 }
 
 app.whenReady().then(() => {
