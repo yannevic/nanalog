@@ -30,4 +30,8 @@ contextBridge.exposeInMainWorld('api', {
   deleteCommit: (id: number): Promise<void> => ipcRenderer.invoke('delete-commit', id),
 
   reorderProjects: (ids: number[]): Promise<void> => ipcRenderer.invoke('reorder-projects', ids),
+
+  winMinimize: (): Promise<void> => ipcRenderer.invoke('win-minimize'),
+  winMaximize: (): Promise<void> => ipcRenderer.invoke('win-maximize'),
+  winClose: (): Promise<void> => ipcRenderer.invoke('win-close'),
 })

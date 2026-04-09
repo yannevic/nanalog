@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Home from './pages/Home'
 import DetailView from './components/DetailView'
 import { useProjects } from './hooks/useProjects'
+import TitleBar from './components/TitleBar'
 
 const petalPositions = [
   { top: '-20px', left: '5%' },
@@ -97,10 +98,13 @@ export default function App() {
         background: 'var(--cream)',
         position: 'relative',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <PetalBg />
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <TitleBar />
+      <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
         <div key={openProject ? `project-${openProject.id}` : 'home'} className="fade-up">
           {openProject ? (
             <DetailView project={openProject} onBack={() => setOpenProjectId(null)} />

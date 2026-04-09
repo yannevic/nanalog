@@ -17,6 +17,9 @@ declare global {
       ) => Promise<Commit>
       deleteCommit: (id: number) => Promise<void>
       reorderProjects: (ids: number[]) => Promise<void>
+      winMinimize: () => Promise<void>
+      winMaximize: () => Promise<void>
+      winClose: () => Promise<void>
     }
   }
 }

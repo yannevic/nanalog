@@ -19,6 +19,7 @@ function createWindow() {
     title: 'Nanalog',
     width: 1200,
     height: 800,
+    frame: false,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -31,6 +32,16 @@ function createWindow() {
   } else {
     win.loadFile(join(__dirname, '../dist/index.html'))
   }
+
+  ipcMain.handle('win-minimize', () => win.minimize())
+  ipcMain.handle('win-maximize', () => {
+    if (win.isMaximized()) {
+      win.unmaximize()
+    } else {
+      win.maximize()
+    }
+  })
+  ipcMain.handle('win-close', () => win.close())
 }
 
 app.whenReady().then(() => {
