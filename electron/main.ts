@@ -11,6 +11,9 @@ import {
   addCommit,
   deleteCommit,
   reorderProjects,
+  addPhase,
+  deletePhase,
+  addTaskToPhase,
 } from '../src/lib/db'
 import type { Project, Commit } from '../src/types/project'
 
@@ -80,6 +83,17 @@ app.whenReady().then(() => {
       }: { projectId: number; type: Commit['type']; msg: string; version: string }
     ) => addCommit(projectId, type, msg, version)
   )
+
+  ipcMain.handle('add-phase', (_e, { projectId, name }: { projectId: number; name: string }) =>
+    addPhase(projectId, name)
+  )
+
+  ipcMain.handle('delete-phase', (_e, id: number) => deletePhase(id))
+
+  ipcMain.handle('add-task-to-phase', (_e, { phaseId, text }: { phaseId: number; text: string }) =>
+    addTaskToPhase(phaseId, text)
+  )
+
   ipcMain.handle('delete-commit', (_e, id: number) => deleteCommit(id))
 
   ipcMain.handle('reorder-projects', (_e, ids: number[]) => reorderProjects(ids))

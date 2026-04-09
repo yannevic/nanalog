@@ -54,15 +54,43 @@ try {
   // coluna já existe
 }
 
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS phases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    )
+  `)
+} catch {
+  // tabela já existe
+}
+
+try {
+  db.exec(`ALTER TABLE tasks ADD COLUMN phase_id INTEGER REFERENCES phases(id) ON DELETE CASCADE`)
+} catch {
+  // coluna já existe
+}
+
 function getProjectFull(id: number): Project | null {
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as
     | Record<string, unknown>
     | undefined
   if (!row) return null
 
-  const tasks = db
-    .prepare('SELECT * FROM tasks WHERE project_id = ? ORDER BY id ASC')
-    .all(id) as Task[]
+  const phases = db
+    .prepare('SELECT * FROM phases WHERE project_id = ? ORDER BY sort_order ASC')
+    .all(id) as { id: number; name: string; sort_order: number }[]
+
+  const phasesWithTasks = phases.map((phase) => {
+    const tasks = db
+      .prepare('SELECT * FROM tasks WHERE phase_id = ? ORDER BY id ASC')
+      .all(phase.id) as Task[]
+    return { ...phase, tasks }
+  })
+
   const commits = db
     .prepare('SELECT * FROM commits WHERE project_id = ? ORDER BY id DESC')
     .all(id) as Commit[]
@@ -77,7 +105,7 @@ function getProjectFull(id: number): Project | null {
     where: row.where_stopped as string,
     notes: row.notes as string,
     briefing: row.briefing as string,
-    tasks,
+    phases: phasesWithTasks,
     commits,
   }
 }
@@ -165,6 +193,34 @@ export function updateTask(id: number, done: boolean): void {
 
 export function deleteTask(id: number): void {
   db.prepare('DELETE FROM tasks WHERE id = ?').run(id)
+}
+
+export function addPhase(
+  projectId: number,
+  name: string
+): { id: number; name: string; sort_order: number; tasks: Task[] } {
+  const count = (
+    db.prepare('SELECT COUNT(*) as c FROM phases WHERE project_id = ?').get(projectId) as {
+      c: number
+    }
+  ).c
+  const result = db
+    .prepare('INSERT INTO phases (project_id, name, sort_order) VALUES (?, ?, ?)')
+    .run(projectId, name, count)
+  return { id: result.lastInsertRowid as number, name, sort_order: count, tasks: [] }
+}
+
+export function deletePhase(id: number): void {
+  db.prepare('DELETE FROM phases WHERE id = ?').run(id)
+}
+
+export function addTaskToPhase(phaseId: number, text: string): Task {
+  const result = db
+    .prepare(
+      'INSERT INTO tasks (project_id, phase_id, text, done) VALUES ((SELECT project_id FROM phases WHERE id = ?), ?, ?, 0)'
+    )
+    .run(phaseId, phaseId, text)
+  return { id: result.lastInsertRowid as number, text, done: false }
 }
 
 export function addCommit(

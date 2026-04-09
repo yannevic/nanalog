@@ -8,6 +8,13 @@ export interface Task {
   done: boolean
 }
 
+export interface Phase {
+  id: number
+  name: string
+  sort_order: number
+  tasks: Task[]
+}
+
 export interface Commit {
   id: number
   type: CommitType
@@ -24,7 +31,7 @@ export interface Project {
   progress: number
   lastSeen: string
   where: string
-  tasks: Task[]
+  phases: Phase[]
   commits: Commit[]
   notes: string
   briefing: string

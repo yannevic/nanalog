@@ -1,4 +1,4 @@
-import type { Project, Task, Commit } from './project'
+import type { Project, Task, Commit, Phase } from './project'
 declare global {
   interface Window {
     api: {
@@ -9,6 +9,9 @@ declare global {
       addTask: (projectId: number, text: string) => Promise<Task>
       updateTask: (id: number, done: boolean) => Promise<void>
       deleteTask: (id: number) => Promise<void>
+      addPhase: (projectId: number, name: string) => Promise<Phase>
+      deletePhase: (id: number) => Promise<void>
+      addTaskToPhase: (phaseId: number, text: string) => Promise<Task>
       addCommit: (
         projectId: number,
         type: Commit['type'],

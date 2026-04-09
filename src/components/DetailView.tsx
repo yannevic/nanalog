@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { useProjects } from '../hooks/useProjects'
-import type { Project, Commit } from '../types/project'
+import type { Project, Commit, Phase } from '../types/project'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -127,8 +127,17 @@ function renderWithHex(children: React.ReactNode): React.ReactNode {
 }
 
 export default function DetailView({ project: initialProject, onBack }: Props) {
-  const { projects, editProject, createTask, toggleTask, removeTask, createCommit, deleteCommit } =
-    useProjects()
+  const {
+    projects,
+    editProject,
+    toggleTask,
+    removeTask,
+    createCommit,
+    deleteCommit,
+    createPhase,
+    removePhase,
+    createTaskInPhase,
+  } = useProjects()
   const project = projects.find((p) => p.id === initialProject.id) ?? initialProject
   const [tab, setTab] = useState<Tab>('overview')
   const [where, setWhere] = useState(project.where)
@@ -136,9 +145,8 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
   const [briefing, setBriefing] = useState(project.briefing)
   const [copied, setCopied] = useState(false)
   const [editingBriefing, setEditingBriefing] = useState(!project.briefing)
-  const [newTask, setNewTask] = useState('')
-  const [importMode, setImportMode] = useState(false)
-  const [importText, setImportText] = useState('')
+  const [newPhaseName, setNewPhaseName] = useState('')
+  const [newTaskTexts, setNewTaskTexts] = useState<Record<number, string>>({})
   const [commitMsg, setCommitMsg] = useState('')
   const [commitType, setCommitType] = useState<Commit['type']>('✨')
   const [status, setStatus] = useState<Project['status']>(project.status)
@@ -220,35 +228,33 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
     await editProject(project.id, { name })
   }
 
-  async function handleAddTask() {
-    if (!newTask.trim()) return
-    if (project.tasks.length >= 10) return
-    await createTask(project.id, newTask.trim())
-    setNewTask('')
+  async function handleAddPhase() {
+    if (!newPhaseName.trim()) return
+    await createPhase(project.id, newPhaseName.trim())
+    setNewPhaseName('')
   }
 
-  async function handleImportTasks() {
-    const lines = importText
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0)
-
-    const slots = 10 - project.tasks.length
-    const toAdd = lines.slice(0, slots)
-
-    await toAdd.reduce(async (prev, text) => {
-      await prev
-      await createTask(project.id, text)
-    }, Promise.resolve())
-
-    setImportText('')
-    setImportMode(false)
+  async function handleAddTaskToPhase(phaseId: number) {
+    const text = newTaskTexts[phaseId]?.trim()
+    if (!text) return
+    await createTaskInPhase(phaseId, text)
+    // eslint-disable-next-line no-param-reassign
+    setNewTaskTexts((prev) => ({ ...prev, [phaseId]: '' }))
   }
 
-  async function handleToggleTask(id: number, done: boolean) {
+  async function handleToggleTask(id: number, done: boolean, phase: Phase) {
     await toggleTask(id, !done)
-    const updatedDone = project.tasks.filter((t) => (t.id === id ? !done : t.done)).length
-    const pct = project.tasks.length ? Math.round((updatedDone / project.tasks.length) * 100) : 0
+    const updatedTasks = phase.tasks.map((t) => (t.id === id ? { ...t, done: !done } : t))
+    const totalPhases = project.phases.length
+    if (totalPhases === 0) {
+      await handleProgressChange(0)
+      return
+    }
+    const donePhases = project.phases.filter((ph) => {
+      const tasks = ph.id === phase.id ? updatedTasks : ph.tasks
+      return tasks.length > 0 && tasks.every((t) => t.done)
+    }).length
+    const pct = Math.round((donePhases / totalPhases) * 100)
     await handleProgressChange(pct)
   }
 
@@ -501,168 +507,205 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
 
       {/* TASKS */}
       {tab === 'tasks' && (
-        <div style={panelCard}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <h3 style={{ ...panelTitle, marginBottom: 0 }}>✅ próximos passos</h3>
-            {project.tasks.length < 10 && (
-              <button
-                onClick={() => {
-                  setImportMode((v) => !v)
-                  setImportText('')
-                }}
-                style={{
-                  background: importMode ? 'var(--rose-light)' : 'transparent',
-                  color: 'var(--rose-deep)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '10px',
-                  padding: '4px 12px',
-                  fontSize: '0.75rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                  cursor: 'pointer',
-                }}
-              >
-                {importMode ? '✕ cancelar' : '📋 importar em lote'}
-              </button>
-            )}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {project.tasks.map((t) => (
-              <div
-                key={t.id}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 0' }}
-              >
-                <input
-                  type="checkbox"
-                  id={`task-${t.id}`}
-                  checked={t.done}
-                  onChange={() => handleToggleTask(t.id, t.done)}
-                  style={{
-                    width: '17px',
-                    height: '17px',
-                    accentColor: 'var(--rose-deep)',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                  }}
-                />
-                <label
-                  htmlFor={`task-${t.id}`}
-                  style={
-                    {
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      flex: 1,
-                      textDecoration: t.done ? 'line-through' : 'none',
-                      color: t.done ? 'var(--text-muted)' : 'var(--text)',
-                    } as React.CSSProperties
-                  }
-                >
-                  {t.text}
-                </label>
-                <button
-                  onClick={() => removeTask(t.id)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.8rem',
-                    padding: '0 4px',
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-          {importMode && (
+        <div>
+          {project.phases.length === 0 && (
             <div
-              style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}
+              style={{
+                ...panelCard,
+                textAlign: 'center',
+                color: 'var(--text-muted)',
+                fontSize: '0.85rem',
+                padding: '2rem',
+              }}
             >
-              <textarea
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                placeholder={
-                  'uma tarefa por linha:\nconfigurar banco de dados\ncriair tela de login\nescrever testes'
-                }
-                rows={5}
-                style={{ ...textareaStyle, resize: 'vertical' }}
-                autoFocus
-              />
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0 }}>
-                {Math.max(0, 10 - project.tasks.length)} vaga
-                {10 - project.tasks.length !== 1 ? 's' : ''} disponível
-                {10 - project.tasks.length !== 1 ? 'is' : ''}
-                {importText.split('\n').filter((l) => l.trim()).length > 10 - project.tasks.length
-                  ? ` — só as primeiras ${10 - project.tasks.length} serão importadas`
-                  : ''}
-              </p>
-              <button
-                onClick={handleImportTasks}
-                disabled={!importText.trim()}
-                style={{
-                  background: 'linear-gradient(135deg, var(--rose), var(--rose-deep))',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '7px 16px',
-                  fontSize: '0.8rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                  fontWeight: 500,
-                  cursor: importText.trim() ? 'pointer' : 'not-allowed',
-                  opacity: importText.trim() ? 1 : 0.5,
-                  alignSelf: 'flex-start',
-                }}
-              >
-                importar tarefas
-              </button>
+              nenhuma fase ainda — crie uma abaixo 🌱
             </div>
           )}
-          {project.tasks.length < 10 && (
-            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-              <input
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddTask()
-                }}
-                placeholder="adicionar tarefa…"
-                style={{
-                  flex: 1,
-                  border: '1.5px solid var(--border)',
-                  borderRadius: '10px',
-                  padding: '6px 10px',
-                  fontFamily: 'DM Sans, sans-serif',
-                  fontSize: '0.82rem',
-                  color: 'var(--text)',
-                  background: 'transparent',
-                  outline: 'none',
-                }}
-              />
-              <button
-                onClick={handleAddTask}
-                style={{
-                  background: 'var(--rose-light)',
-                  color: 'var(--rose-deep)',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '6px 14px',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  fontFamily: 'DM Sans, sans-serif',
-                  fontWeight: 500,
-                }}
-              >
-                + add
-              </button>
-            </div>
-          )}
+
+          {project.phases.map((phase) => {
+            const allDone = phase.tasks.length > 0 && phase.tasks.every((t) => t.done)
+            return (
+              <div key={phase.id} style={{ ...panelCard, opacity: allDone ? 0.7 : 1 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  <h3
+                    style={{
+                      ...panelTitle,
+                      marginBottom: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.9rem' }}>{allDone ? '✅' : '🔹'}</span>
+                    <span style={{ textDecoration: allDone ? 'line-through' : 'none' }}>
+                      {phase.name}
+                    </span>
+                  </h3>
+                  <button
+                    onClick={() => removePhase(phase.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--text-muted)',
+                      fontSize: '0.8rem',
+                      padding: '0 4px',
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    marginBottom: '8px',
+                  }}
+                >
+                  {phase.tasks.map((t) => (
+                    <div
+                      key={t.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '4px 0',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        id={`task-${t.id}`}
+                        checked={t.done}
+                        onChange={() => handleToggleTask(t.id, t.done, phase)}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          accentColor: 'var(--rose-deep)',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <label
+                        htmlFor={`task-${t.id}`}
+                        style={
+                          {
+                            fontSize: '0.84rem',
+                            cursor: 'pointer',
+                            flex: 1,
+                            textDecoration: t.done ? 'line-through' : 'none',
+                            color: t.done ? 'var(--text-muted)' : 'var(--text)',
+                          } as React.CSSProperties
+                        }
+                      >
+                        {t.text}
+                      </label>
+                      <button
+                        onClick={() => removeTask(t.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'var(--text-muted)',
+                          fontSize: '0.75rem',
+                          padding: '0 4px',
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    value={newTaskTexts[phase.id] ?? ''}
+                    onChange={(e) =>
+                      setNewTaskTexts((prev) => ({ ...prev, [phase.id]: e.target.value }))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddTaskToPhase(phase.id)
+                    }}
+                    placeholder="adicionar tarefa…"
+                    style={{
+                      flex: 1,
+                      border: '1.5px solid var(--border)',
+                      borderRadius: '10px',
+                      padding: '5px 10px',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: '0.82rem',
+                      color: 'var(--text)',
+                      background: 'transparent',
+                      outline: 'none',
+                    }}
+                  />
+                  <button
+                    onClick={() => handleAddTaskToPhase(phase.id)}
+                    style={{
+                      background: 'var(--rose-light)',
+                      color: 'var(--rose-deep)',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '5px 12px',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontWeight: 500,
+                    }}
+                  >
+                    + add
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+
+          <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+            <input
+              value={newPhaseName}
+              onChange={(e) => setNewPhaseName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddPhase()
+              }}
+              placeholder="nome da nova fase…"
+              style={{
+                flex: 1,
+                border: '2px dashed var(--border)',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: '0.82rem',
+                color: 'var(--text)',
+                background: 'transparent',
+                outline: 'none',
+              }}
+            />
+            <button
+              onClick={handleAddPhase}
+              style={{
+                background: 'linear-gradient(135deg, var(--rose), var(--rose-deep))',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '8px 16px',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                fontFamily: 'DM Sans, sans-serif',
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              + fase
+            </button>
+          </div>
         </div>
       )}
 

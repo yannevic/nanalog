@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { Project, Task, Commit } from '../src/types/project'
+import type { Project, Task, Commit, Phase } from '../src/types/project'
 
 contextBridge.exposeInMainWorld('api', {
   listProjects: (): Promise<Project[]> => ipcRenderer.invoke('list-projects'),
@@ -19,6 +19,14 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('update-task', { id, done }),
 
   deleteTask: (id: number): Promise<void> => ipcRenderer.invoke('delete-task', id),
+
+  addPhase: (projectId: number, name: string): Promise<Phase> =>
+    ipcRenderer.invoke('add-phase', { projectId, name }),
+
+  deletePhase: (id: number): Promise<void> => ipcRenderer.invoke('delete-phase', id),
+
+  addTaskToPhase: (phaseId: number, text: string): Promise<Task> =>
+    ipcRenderer.invoke('add-task-to-phase', { phaseId, text }),
 
   addCommit: (
     projectId: number,
