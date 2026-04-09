@@ -91,6 +91,8 @@ export default function Home({ onOpen }: Props) {
             marginBottom: '2rem',
             paddingBottom: '1rem',
             borderBottom: '1px solid var(--border)',
+            flexWrap: 'wrap',
+            gap: '8px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

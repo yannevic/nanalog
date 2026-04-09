@@ -163,7 +163,8 @@ export function deleteTask(id: number): void {
 }
 
 export function addCommit(projectId: number, type: Commit['type'], msg: string): Commit {
-  const date = new Date().toISOString()
+  const now = new Date()
+  const date = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
   const result = db
     .prepare('INSERT INTO commits (project_id, type, msg, date) VALUES (?, ?, ?, ?)')
     .run(projectId, type, msg, date)

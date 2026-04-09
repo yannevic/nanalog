@@ -159,8 +159,8 @@ export default function ProjectCard({ project, onOpen, dragHandle }: Props) {
       )}
 
       {/* Rodapé: progresso + lastSeen + botão */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: '120px' }}>
           <div
             style={{
               display: 'flex',
@@ -198,7 +198,8 @@ export default function ProjectCard({ project, onOpen, dragHandle }: Props) {
             fontSize: '0.68rem',
             color: 'var(--text-muted)',
             textAlign: 'right',
-            minWidth: '80px',
+            minWidth: '60px',
+            flexShrink: 1,
           }}
         >
           {project.lastSeen}

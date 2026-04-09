@@ -694,7 +694,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
             <div
               style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}
             >
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <select
                   value={commitType}
                   onChange={(e) => setCommitType(e.target.value as Commit['type'])}
@@ -709,6 +709,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                     outline: 'none',
                     cursor: 'pointer',
                     minWidth: '120px',
+                    flexShrink: 0,
                   }}
                 >
                   <option value="✨">✨ feature</option>
