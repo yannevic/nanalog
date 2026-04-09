@@ -19,7 +19,7 @@ import type { Project, Commit } from '../src/types/project'
 
 function createWindow() {
   const win = new BrowserWindow({
-    icon: join(__dirname, '../assets/icon.png'),
+    icon: join(__dirname, '/assets/icon.png'),
     title: 'Nanalog',
     width: 1200,
     height: 800,
