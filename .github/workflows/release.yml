@@ -60,6 +60,7 @@ jobs:
         run: npm run build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH: always
 
       - name: Commit da versão
         shell: bash
@@ -77,8 +78,8 @@ jobs:
           name: Nanalog v${{ steps.bump.outputs.new_version }}
           body: ${{ steps.changelog.outputs.body }}
           files: |
-            release/Nanalog Setup ${{ steps.bump.outputs.new_version }}.exe
-            release/Nanalog Setup ${{ steps.bump.outputs.new_version }}.exe.blockmap
+            release/Nanalog-Setup-${{ steps.bump.outputs.new_version }}.exe
+            release/Nanalog-Setup-${{ steps.bump.outputs.new_version }}.exe.blockmap
             release/latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

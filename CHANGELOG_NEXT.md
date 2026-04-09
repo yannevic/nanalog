@@ -1,5 +1,6 @@
-## 🌸 Nanalog v1.0.7
+## 🌸 Nanalog v1.0.8
 
 ### 🔧 Correções
 
-- Nome do instalador corrigido para Nanalog-Setup-x.x.x.exe (hífens em vez de espaços)
+- CI corrigido: arquivos do release agora usam hífens no nome
+- CI corrigido: electron-builder agora publica os arquivos corretamente
