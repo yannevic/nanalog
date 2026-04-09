@@ -57,17 +57,27 @@ export default function TitleBar() {
           <span style={{ color: 'var(--rose-deep)', fontStyle: 'italic' }}>Nana</span>log
         </span>
       </div>
-
       {/* Botões */}
       <div
         style={
           {
             display: 'flex',
+            alignItems: 'center',
             gap: '6px',
             WebkitAppRegion: 'no-drag',
           } as React.CSSProperties
         }
       >
+        <span
+          style={{
+            fontSize: '0.65rem',
+            color: 'var(--text-muted)',
+            fontFamily: 'DM Sans, sans-serif',
+            marginRight: '4px',
+          }}
+        >
+          v1.0.0
+        </span>
         {/* Minimizar */}
         <button
           onClick={handleMinimize}

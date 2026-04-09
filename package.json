@@ -1,6 +1,6 @@
 {
   "name": "nanalog",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
@@ -52,7 +52,11 @@
     },
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "node_modules/better-sqlite3/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
     ],
     "mac": {
       "icon": "assets/icon.png",
