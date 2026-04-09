@@ -54,13 +54,6 @@ try {
   // coluna já existe
 }
 
-const projectsWithoutOrder = db.prepare(`SELECT id FROM projects ORDER BY id ASC`).all() as {
-  id: number
-}[]
-projectsWithoutOrder.forEach((p, i) => {
-  db.prepare(`UPDATE projects SET sort_order = ? WHERE id = ?`).run(i, p.id)
-})
-
 function getProjectFull(id: number): Project | null {
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as
     | Record<string, unknown>
@@ -106,6 +99,12 @@ export function addProject(data: Pick<Project, 'name' | 'version' | 'status' | '
   `
     )
     .run(data.name, data.version, data.status, now, data.where)
+
+  const count = (db.prepare('SELECT COUNT(*) as c FROM projects').get() as { c: number }).c
+  db.prepare('UPDATE projects SET sort_order = ? WHERE id = ?').run(
+    count - 1,
+    result.lastInsertRowid
+  )
 
   return getProjectFull(result.lastInsertRowid as number)!
 }
