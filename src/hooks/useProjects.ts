@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { Project, Commit, Phase } from '../types/project'
+import type { Project, Commit } from '../types/project'
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([])

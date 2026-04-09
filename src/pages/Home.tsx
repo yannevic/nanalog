@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Project } from '../types/project'
 import { useProjects } from '../hooks/useProjects'
 import ProjectCard from '../components/ProjectCard'
@@ -17,12 +17,100 @@ interface Props {
   onOpen: (id: number) => void
 }
 
-const days = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
-const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+const days = [
+  'domingo',
+  'segunda-feira',
+  'terça-feira',
+  'quarta-feira',
+  'quinta-feira',
+  'sexta-feira',
+  'sábado',
+]
+const months = [
+  'janeiro',
+  'fevereiro',
+  'março',
+  'abril',
+  'maio',
+  'junho',
+  'julho',
+  'agosto',
+  'setembro',
+  'outubro',
+  'novembro',
+  'dezembro',
+]
 
-function getHeaderDate(): string {
-  const now = new Date()
-  return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`
+function useNow() {
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return now
+}
+
+function DateBadge() {
+  const now = useNow()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+  const weekday = days[now.getDay()]
+  const day = now.getDate()
+  const month = months[now.getMonth()]
+  const year = now.getFullYear()
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        background: 'var(--rose-pale)',
+        border: '1px solid var(--border)',
+        borderRadius: '20px',
+        padding: '6px 14px',
+        fontFamily: 'DM Sans, sans-serif',
+      }}
+    >
+      {/* Florzinha */}
+      <span style={{ fontSize: '0.85rem', lineHeight: 1 }}>🌸</span>
+
+      {/* Dia da semana */}
+      <span
+        style={{
+          fontSize: '0.75rem',
+          color: 'var(--rose-deep)',
+          fontWeight: 500,
+        }}
+      >
+        {weekday}
+      </span>
+
+      {/* Separador */}
+      <span style={{ color: 'var(--border)', fontSize: '0.7rem' }}>·</span>
+
+      {/* Data */}
+      <span style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>
+        {day} de {month} de {year}
+      </span>
+
+      {/* Separador */}
+      <span style={{ color: 'var(--border)', fontSize: '0.7rem' }}>·</span>
+
+      {/* Horário */}
+      <span
+        style={{
+          fontSize: '0.75rem',
+          color: 'var(--text-muted)',
+          fontFamily: 'monospace',
+          letterSpacing: '0.04em',
+          minWidth: '52px',
+        }}
+      >
+        {time}
+      </span>
+    </div>
+  )
 }
 
 function SortableCard({ project, onOpen }: { project: Project; onOpen: (id: number) => void }) {
@@ -120,7 +208,7 @@ export default function Home({ onOpen }: Props) {
               <span style={{ color: 'var(--rose-deep)', fontStyle: 'italic' }}>Nana</span>log
             </div>
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{getHeaderDate()}</div>
+          <DateBadge />
         </header>
 
         <StatsBar projects={projects} filter={filter} onFilter={setFilter} />

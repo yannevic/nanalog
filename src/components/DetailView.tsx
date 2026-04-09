@@ -32,6 +32,18 @@ function getProgressFill(status: Project['status']): React.CSSProperties {
   return { background: 'linear-gradient(90deg, var(--rose), var(--rose-deep))' }
 }
 
+function formatDate(raw: string): string {
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return raw
+  return d.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 function resolveColor(raw: string): string | null {
   if (/^#[0-9a-fA-F]{3,6}$/.test(raw)) return raw
   if (/^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/.test(raw)) return raw
@@ -148,6 +160,8 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
   const [newPhaseName, setNewPhaseName] = useState('')
   const [newTaskTexts, setNewTaskTexts] = useState<Record<number, string>>({})
   const [importPhaseId, setImportPhaseId] = useState<number | null>(null)
+  const overlayRef = React.useRef<HTMLDivElement>(null)
+  const mouseDownOnOverlay = React.useRef(false)
   const [importText, setImportText] = useState('')
   const [commitMsg, setCommitMsg] = useState('')
   const [commitType, setCommitType] = useState<Commit['type']>('✨')
@@ -728,6 +742,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
           </div>
           {importPhaseId !== null && (
             <div
+              ref={overlayRef}
               style={{
                 position: 'fixed',
                 inset: 0,
@@ -738,7 +753,13 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                 justifyContent: 'center',
                 backdropFilter: 'blur(2px)',
               }}
-              onClick={() => setImportPhaseId(null)}
+              onMouseDown={(e) => {
+                mouseDownOnOverlay.current = e.target === overlayRef.current
+              }}
+              onMouseUp={() => {
+                if (mouseDownOnOverlay.current) setImportPhaseId(null)
+                mouseDownOnOverlay.current = false
+              }}
             >
               <div
                 style={{
@@ -749,7 +770,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                   maxWidth: '90vw',
                   border: '1px solid var(--border)',
                 }}
-                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
               >
                 <h3 style={{ ...panelTitle, marginBottom: '0.75rem' }}>📋 importar tarefas</h3>
                 <p
@@ -952,7 +973,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                         alignItems: 'center',
                       }}
                     >
-                      {c.date}
+                      {formatDate(c.date)}
                       {c.version && (
                         <span
                           style={{
