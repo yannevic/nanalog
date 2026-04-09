@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
-
-  useEffect(() => {
-    window.api.winMaximize
-  }, [])
 
   function handleMinimize() {
     window.api.winMinimize()
@@ -43,7 +39,7 @@ export default function TitleBar() {
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
         <img
-          src="/assets/icon.png"
+          src="./assets/icon.png"
           alt="Nanalog"
           style={{ width: '28px', height: '28px', objectFit: 'contain' }}
         />

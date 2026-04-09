@@ -1,6 +1,8 @@
 {
   "name": "nanalog",
   "version": "1.0.0",
+  "description": "Organizador de projetos pessoais com visual floral/cozy",
+  "author": "yannevic",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
@@ -63,7 +65,7 @@
       "target": "dmg"
     },
     "win": {
-      "icon": "assets/icon.png",
+      "icon": "assets/icon.ico",
       "target": "nsis"
     },
     "linux": {

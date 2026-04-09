@@ -185,7 +185,7 @@ export default function Home({ onOpen }: Props) {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img
-              src="assets/icon.png"
+              src="./assets/icon.png"
               alt="Nanalog"
               style={{ width: '38px', height: '38px', objectFit: 'contain' }}
             />
