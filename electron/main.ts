@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
+import { copyFileSync, existsSync, renameSync } from 'fs'
 import {
   listProjects,
   addProject,
@@ -17,6 +18,20 @@ import {
   addTaskToPhase,
 } from '../src/lib/db'
 import type { Project, Commit } from '../src/types/project'
+
+function backupDatabase() {
+  const userData = app.getPath('userData')
+  const db = join(userData, 'nanalog.db')
+  if (!existsSync(db)) return
+
+  const bak1 = join(userData, 'nanalog.bak1.db')
+  const bak2 = join(userData, 'nanalog.bak2.db')
+  const bak3 = join(userData, 'nanalog.bak3.db')
+
+  if (existsSync(bak2)) renameSync(bak2, bak3)
+  if (existsSync(bak1)) renameSync(bak1, bak2)
+  copyFileSync(db, bak1)
+}
 
 function setupUpdater(win: BrowserWindow) {
   autoUpdater.autoDownload = false
@@ -85,6 +100,7 @@ function createWindow() {
   }
 }
 app.whenReady().then(() => {
+  backupDatabase()
   ipcMain.handle('list-projects', () => listProjects())
 
   ipcMain.handle(

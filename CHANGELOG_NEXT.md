@@ -1,6 +1,9 @@
-## 🌸 Nanalog v1.0.8
+## 🌸 Nanalog v1.0.9
 
-### 🔧 Correções
+### ✨ Novidades
 
-- CI corrigido: arquivos do release agora usam hífens no nome
-- CI corrigido: electron-builder agora publica os arquivos corretamente
+- Backup automático do banco a cada abertura (últimos 3 salvos em %APPDATA%\nanalog)
+
+### ⚙️ Configurações
+
+- README adicionado ao repositório
