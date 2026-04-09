@@ -147,6 +147,8 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
   const [editingBriefing, setEditingBriefing] = useState(!project.briefing)
   const [newPhaseName, setNewPhaseName] = useState('')
   const [newTaskTexts, setNewTaskTexts] = useState<Record<number, string>>({})
+  const [importPhaseId, setImportPhaseId] = useState<number | null>(null)
+  const [importText, setImportText] = useState('')
   const [commitMsg, setCommitMsg] = useState('')
   const [commitType, setCommitType] = useState<Commit['type']>('✨')
   const [status, setStatus] = useState<Project['status']>(project.status)
@@ -648,6 +650,24 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                     }}
                   />
                   <button
+                    onClick={() => {
+                      setImportPhaseId(phase.id)
+                      setImportText('')
+                    }}
+                    style={{
+                      background: 'transparent',
+                      color: 'var(--text-muted)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '10px',
+                      padding: '5px 10px',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                    }}
+                  >
+                    📋
+                  </button>
+                  <button
                     onClick={() => handleAddTaskToPhase(phase.id)}
                     style={{
                       background: 'var(--rose-light)',
@@ -661,7 +681,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                       fontWeight: 500,
                     }}
                   >
-                    + add
+                    adicionar
                   </button>
                 </div>
               </div>
@@ -706,6 +726,98 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
               + fase
             </button>
           </div>
+          {importPhaseId !== null && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(74,48,64,0.25)',
+                zIndex: 50,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'blur(2px)',
+              }}
+              onClick={() => setImportPhaseId(null)}
+            >
+              <div
+                style={{
+                  background: 'var(--white)',
+                  borderRadius: '22px',
+                  padding: '1.5rem',
+                  width: '420px',
+                  maxWidth: '90vw',
+                  border: '1px solid var(--border)',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ ...panelTitle, marginBottom: '0.75rem' }}>📋 importar tarefas</h3>
+                <p
+                  style={{
+                    fontSize: '0.78rem',
+                    color: 'var(--text-muted)',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  uma tarefa por linha
+                </p>
+                <textarea
+                  value={importText}
+                  onChange={(e) => setImportText(e.target.value)}
+                  placeholder={'configurar banco de dados\ncriar tela de login\nescrever testes'}
+                  rows={6}
+                  autoFocus
+                  style={{ ...textareaStyle, width: '100%', marginBottom: '10px' }}
+                />
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => setImportPhaseId(null)}
+                    style={{
+                      background: 'transparent',
+                      color: 'var(--text-muted)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '10px',
+                      padding: '6px 14px',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                    }}
+                  >
+                    cancelar
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const lines = importText
+                        .split('\n')
+                        .map((l) => l.trim())
+                        .filter((l) => l.length > 0)
+                      await lines.reduce(async (prev, text) => {
+                        await prev
+                        await createTaskInPhase(importPhaseId, text)
+                      }, Promise.resolve())
+                      setImportPhaseId(null)
+                      setImportText('')
+                    }}
+                    disabled={!importText.trim()}
+                    style={{
+                      background: 'linear-gradient(135deg, var(--rose), var(--rose-deep))',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '6px 16px',
+                      fontSize: '0.78rem',
+                      cursor: importText.trim() ? 'pointer' : 'not-allowed',
+                      opacity: importText.trim() ? 1 : 0.5,
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontWeight: 500,
+                    }}
+                  >
+                    importar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
