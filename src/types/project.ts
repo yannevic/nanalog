@@ -13,6 +13,7 @@ export interface Commit {
   type: CommitType
   msg: string
   date: string
+  version: string
 }
 
 export interface Project {

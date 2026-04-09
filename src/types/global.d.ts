@@ -1,5 +1,4 @@
 import type { Project, Task, Commit } from './project'
-declare module '*.css'
 declare global {
   interface Window {
     api: {
@@ -10,7 +9,12 @@ declare global {
       addTask: (projectId: number, text: string) => Promise<Task>
       updateTask: (id: number, done: boolean) => Promise<void>
       deleteTask: (id: number) => Promise<void>
-      addCommit: (projectId: number, type: Commit['type'], msg: string) => Promise<Commit>
+      addCommit: (
+        projectId: number,
+        type: Commit['type'],
+        msg: string,
+        version: string
+      ) => Promise<Commit>
       deleteCommit: (id: number) => Promise<void>
       reorderProjects: (ids: number[]) => Promise<void>
     }

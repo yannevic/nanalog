@@ -43,8 +43,13 @@ export function useProjects() {
     await load()
   }
 
-  async function createCommit(projectId: number, type: Commit['type'], msg: string) {
-    await window.api.addCommit(projectId, type, msg)
+  async function createCommit(
+    projectId: number,
+    type: Commit['type'],
+    msg: string,
+    version: string
+  ) {
+    await window.api.addCommit(projectId, type, msg, version)
     await load()
   }
 

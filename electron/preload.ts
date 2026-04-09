@@ -20,8 +20,12 @@ contextBridge.exposeInMainWorld('api', {
 
   deleteTask: (id: number): Promise<void> => ipcRenderer.invoke('delete-task', id),
 
-  addCommit: (projectId: number, type: Commit['type'], msg: string): Promise<Commit> =>
-    ipcRenderer.invoke('add-commit', { projectId, type, msg }),
+  addCommit: (
+    projectId: number,
+    type: Commit['type'],
+    msg: string,
+    version: string
+  ): Promise<Commit> => ipcRenderer.invoke('add-commit', { projectId, type, msg, version }),
 
   deleteCommit: (id: number): Promise<void> => ipcRenderer.invoke('delete-commit', id),
 

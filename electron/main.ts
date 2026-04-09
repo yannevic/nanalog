@@ -59,10 +59,16 @@ app.whenReady().then(() => {
 
   ipcMain.handle(
     'add-commit',
-    (_e, { projectId, type, msg }: { projectId: number; type: Commit['type']; msg: string }) =>
-      addCommit(projectId, type, msg)
+    (
+      _e,
+      {
+        projectId,
+        type,
+        msg,
+        version,
+      }: { projectId: number; type: Commit['type']; msg: string; version: string }
+    ) => addCommit(projectId, type, msg, version)
   )
-
   ipcMain.handle('delete-commit', (_e, id: number) => deleteCommit(id))
 
   ipcMain.handle('reorder-projects', (_e, ids: number[]) => reorderProjects(ids))

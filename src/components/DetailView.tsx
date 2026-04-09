@@ -254,7 +254,7 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
 
   async function handleAddCommit() {
     if (!commitMsg.trim()) return
-    await createCommit(project.id, commitType, commitMsg.trim())
+    await createCommit(project.id, commitType, commitMsg.trim(), version)
     setCommitMsg('')
   }
 
@@ -788,9 +788,29 @@ export default function DetailView({ project: initialProject, onBack }: Props) {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.83rem', color: 'var(--text)' }}>{c.msg}</div>
                     <div
-                      style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}
+                      style={{
+                        fontSize: '0.7rem',
+                        color: 'var(--text-muted)',
+                        marginTop: '2px',
+                        display: 'flex',
+                        gap: '6px',
+                        alignItems: 'center',
+                      }}
                     >
                       {c.date}
+                      {c.version && (
+                        <span
+                          style={{
+                            fontFamily: 'monospace',
+                            background: 'var(--rose-light)',
+                            color: 'var(--rose-deep)',
+                            padding: '1px 6px',
+                            borderRadius: '6px',
+                          }}
+                        >
+                          {c.version}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <button

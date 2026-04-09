@@ -48,6 +48,12 @@ try {
   // coluna já existe
 }
 
+try {
+  db.exec(`ALTER TABLE commits ADD COLUMN version TEXT NOT NULL DEFAULT ''`)
+} catch {
+  // coluna já existe
+}
+
 const projectsWithoutOrder = db.prepare(`SELECT id FROM projects ORDER BY id ASC`).all() as {
   id: number
 }[]
@@ -162,11 +168,16 @@ export function deleteTask(id: number): void {
   db.prepare('DELETE FROM tasks WHERE id = ?').run(id)
 }
 
-export function addCommit(projectId: number, type: Commit['type'], msg: string): Commit {
+export function addCommit(
+  projectId: number,
+  type: Commit['type'],
+  msg: string,
+  version: string
+): Commit {
   const now = new Date()
   const date = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
   const result = db
-    .prepare('INSERT INTO commits (project_id, type, msg, date) VALUES (?, ?, ?, ?)')
-    .run(projectId, type, msg, date)
-  return { id: result.lastInsertRowid as number, type, msg, date }
+    .prepare('INSERT INTO commits (project_id, type, msg, date, version) VALUES (?, ?, ?, ?, ?)')
+    .run(projectId, type, msg, date, version)
+  return { id: result.lastInsertRowid as number, type, msg, date, version }
 }
