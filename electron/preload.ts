@@ -49,15 +49,26 @@ contextBridge.exposeInMainWorld('api', {
   updateInstallNow: (): Promise<void> => ipcRenderer.invoke('update-install-now'),
 
   onUpdateAvailable: (cb: (version: string) => void) => {
+    ipcRenderer.removeAllListeners('update-available')
     ipcRenderer.on('update-available', (_e, version: string) => cb(version))
   },
   onUpdateProgress: (cb: (percent: number) => void) => {
+    ipcRenderer.removeAllListeners('update-progress')
     ipcRenderer.on('update-progress', (_e, percent: number) => cb(percent))
   },
   onUpdateDownloaded: (cb: () => void) => {
+    ipcRenderer.removeAllListeners('update-downloaded')
     ipcRenderer.on('update-downloaded', () => cb())
   },
   onUpdateError: (cb: (msg: string) => void) => {
+    ipcRenderer.removeAllListeners('update-error')
     ipcRenderer.on('update-error', (_e, msg: string) => cb(msg))
+  },
+
+  removeUpdateListeners: () => {
+    ipcRenderer.removeAllListeners('update-available')
+    ipcRenderer.removeAllListeners('update-progress')
+    ipcRenderer.removeAllListeners('update-downloaded')
+    ipcRenderer.removeAllListeners('update-error')
   },
 })

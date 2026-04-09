@@ -32,6 +32,7 @@ declare global {
       onUpdateProgress: (cb: (percent: number) => void) => void
       onUpdateDownloaded: (cb: () => void) => void
       onUpdateError: (cb: (msg: string) => void) => void
+      removeUpdateListeners: () => void
     }
   }
 }

@@ -25,6 +25,10 @@ export default function UpdateBanner() {
     window.api.onUpdateError((msg) => {
       setPhase({ kind: 'error', msg })
     })
+
+    return () => {
+      window.api.removeUpdateListeners()
+    }
   }, [])
 
   if (dismissed || phase.kind === 'idle') return null

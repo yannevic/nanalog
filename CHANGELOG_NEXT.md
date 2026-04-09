@@ -1,11 +1,5 @@
-## 🌸 Nanalog v1.0.3
-
-### ✨ Novidades
-
-- Auto-update: o app verifica atualizações ao iniciar e notifica dentro da própria janela
-- Banner no canto inferior direito com barra de progresso e botão "Reiniciar e instalar"
+## 🌸 Nanalog v1.0.6
 
 ### 🔧 Correções
 
-- Configura owner e repo no publish para gerar latest.yml e .blockmap corretamente
-- Files do release.yml atualizadas
+- Listeners do auto-update agora são removidos corretamente ao desmontar o componente
