@@ -35,6 +35,8 @@ export default function TitleBar() {
           WebkitAppRegion: 'drag',
           userSelect: 'none',
           flexShrink: 0,
+          zIndex: 10,
+          position: 'relative',
         } as React.CSSProperties
       }
     >

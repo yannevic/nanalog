@@ -94,7 +94,7 @@ export default function App() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        height: '100vh',
         background: 'var(--cream)',
         position: 'relative',
         overflow: 'hidden',
@@ -104,7 +104,7 @@ export default function App() {
     >
       <PetalBg />
       <TitleBar />
-      <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, overflowY: 'auto' }}>
         <div key={openProject ? `project-${openProject.id}` : 'home'} className="fade-up">
           {openProject ? (
             <DetailView project={openProject} onBack={() => setOpenProjectId(null)} />
