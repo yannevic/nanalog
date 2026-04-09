@@ -8,3 +8,4 @@
 ### 🔧 Correções
 
 - Configura owner e repo no publish para gerar latest.yml e .blockmap corretamente
+- Files do release.yml atualizadas

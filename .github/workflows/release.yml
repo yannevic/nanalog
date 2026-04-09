@@ -76,6 +76,9 @@ jobs:
           tag_name: v${{ steps.bump.outputs.new_version }}
           name: Nanalog v${{ steps.bump.outputs.new_version }}
           body: ${{ steps.changelog.outputs.body }}
-          files: release/Nanalog Setup ${{ steps.bump.outputs.new_version }}.exe
+          files: |
+            release/Nanalog Setup ${{ steps.bump.outputs.new_version }}.exe
+            release/Nanalog Setup ${{ steps.bump.outputs.new_version }}.exe.blockmap
+            release/latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
