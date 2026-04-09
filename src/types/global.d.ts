@@ -24,6 +24,14 @@ declare global {
       winMaximize: () => Promise<void>
       winClose: () => Promise<void>
       getVersion: () => Promise<string>
+
+      updateCheck: () => Promise<void>
+      updateStartDownload: () => Promise<void>
+      updateInstallNow: () => Promise<void>
+      onUpdateAvailable: (cb: (version: string) => void) => void
+      onUpdateProgress: (cb: (percent: number) => void) => void
+      onUpdateDownloaded: (cb: () => void) => void
+      onUpdateError: (cb: (msg: string) => void) => void
     }
   }
 }

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import {
   listProjects,
@@ -16,6 +17,32 @@ import {
   addTaskToPhase,
 } from '../src/lib/db'
 import type { Project, Commit } from '../src/types/project'
+
+function setupUpdater(win: BrowserWindow) {
+  autoUpdater.autoDownload = false
+
+  autoUpdater.on('update-available', (info) => {
+    win.webContents.send('update-available', info.version)
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    win.webContents.send('update-progress', Math.floor(progress.percent))
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    win.webContents.send('update-downloaded')
+  })
+
+  autoUpdater.on('error', (err) => {
+    win.webContents.send('update-error', err.message)
+  })
+
+  ipcMain.handle('update-start-download', () => autoUpdater.downloadUpdate())
+  ipcMain.handle('update-install-now', () => {
+    autoUpdater.quitAndInstall(false, true)
+  })
+  ipcMain.handle('update-check', () => autoUpdater.checkForUpdates())
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -50,8 +77,13 @@ function createWindow() {
   ipcMain.handle('win-close', () => win.close())
 
   ipcMain.handle('get-version', () => app.getVersion())
-}
 
+  setupUpdater(win)
+
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates()
+  }
+}
 app.whenReady().then(() => {
   ipcMain.handle('list-projects', () => listProjects())
 

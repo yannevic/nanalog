@@ -43,4 +43,21 @@ contextBridge.exposeInMainWorld('api', {
   winMaximize: (): Promise<void> => ipcRenderer.invoke('win-maximize'),
   winClose: (): Promise<void> => ipcRenderer.invoke('win-close'),
   getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),
+
+  updateCheck: (): Promise<void> => ipcRenderer.invoke('update-check'),
+  updateStartDownload: (): Promise<void> => ipcRenderer.invoke('update-start-download'),
+  updateInstallNow: (): Promise<void> => ipcRenderer.invoke('update-install-now'),
+
+  onUpdateAvailable: (cb: (version: string) => void) => {
+    ipcRenderer.on('update-available', (_e, version: string) => cb(version))
+  },
+  onUpdateProgress: (cb: (percent: number) => void) => {
+    ipcRenderer.on('update-progress', (_e, percent: number) => cb(percent))
+  },
+  onUpdateDownloaded: (cb: () => void) => {
+    ipcRenderer.on('update-downloaded', () => cb())
+  },
+  onUpdateError: (cb: (msg: string) => void) => {
+    ipcRenderer.on('update-error', (_e, msg: string) => cb(msg))
+  },
 })

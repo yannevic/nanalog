@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import DetailView from './components/DetailView'
 import { useProjects } from './hooks/useProjects'
 import TitleBar from './components/TitleBar'
+import UpdateBanner from './components/UpdateBanner'
 
 const petalPositions = [
   { top: '-20px', left: '5%' },
@@ -104,6 +105,7 @@ export default function App() {
     >
       <PetalBg />
       <TitleBar />
+      <UpdateBanner />
       <div style={{ position: 'relative', zIndex: 1, flex: 1, overflowY: 'auto' }}>
         <div key={openProject ? `project-${openProject.id}` : 'home'} className="fade-up">
           {openProject ? (
